@@ -1,0 +1,4 @@
+<Solution>
+  <Project Path="ImageMCP.csproj" />
+  <Project Path="ImageMCP.Tests/ImageMCP.Tests.csproj" />
+</Solution>

@@ -164,6 +164,21 @@ namespace ImageMCP
             var config = builder.Configuration;
             _comfySettings = config.GetSection("ComfyUI").Get<ComfyUISettings>() ?? new ComfyUISettings();
             
+            // Parse command-line arguments to override settings
+            for (int i = 0; i < args.Length - 1; i++)
+            {
+                if (args[i] == "--template")
+                {
+                    _comfySettings.DefaultTemplate = args[i + 1];
+                    _loggerFactory.CreateLogger("Startup").LogInformation("Template overridden via command line: {Template}", args[i + 1]);
+                }
+                else if (args[i] == "--comfyui-endpoint" || args[i] == "--endpoint")
+                {
+                    _comfySettings.ApiEndpoint = args[i + 1];
+                    _loggerFactory.CreateLogger("Startup").LogInformation("ComfyUI endpoint overridden via command line: {Endpoint}", args[i + 1]);
+                }
+            }
+            
             // Validate critical settings
             if (string.IsNullOrEmpty(_comfySettings.DefaultTemplate))
             {
@@ -174,8 +189,21 @@ namespace ImageMCP
             _loggerFactory.CreateLogger("Startup").LogInformation("ComfyUI settings loaded: ApiEndpoint={Endpoint}, DefaultTemplate={Template}", 
                 _comfySettings.ApiEndpoint, _comfySettings.DefaultTemplate);
 
-            // Set the listening URL
-            builder.WebHost.UseUrls("http://localhost:5243");
+            // Set the listening URL - check for command-line override
+            var listenUrl = "http://localhost:5243";
+            
+            // Parse command-line arguments for --listen
+            for (int i = 0; i < args.Length - 1; i++)
+            {
+                if (args[i] == "--listen" || args[i] == "--urls")
+                {
+                    listenUrl = args[i + 1];
+                    break;
+                }
+            }
+            
+            _loggerFactory.CreateLogger("Startup").LogInformation("HTTP server will listen on: {ListenUrl}", listenUrl);
+            builder.WebHost.UseUrls(listenUrl);
 
             builder.Services.AddCors(options =>
             {

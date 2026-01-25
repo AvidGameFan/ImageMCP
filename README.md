@@ -8,7 +8,7 @@ An MCP (Model Context Protocol) server that enables LM Studio and other MCP-comp
 
 ImageMCP bridges the gap between AI language models and image generation by providing a clean MCP interface to ComfyUI. This allows language models to generate images on-demand during conversations.
 
-The below documentation includes development details.  If you want to jump in and use, please see the [Quick Start Guide](QUICK_START.md).
+> 💡 **NOTE:** The below documentation includes development details.  If you want to jump in and use, please see the [Quick Start Guide](QUICK_START.md).
 
 ## 🏗️ Architecture
 

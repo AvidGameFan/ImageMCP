@@ -105,7 +105,7 @@ public class ComfyUIClient : IDisposable
         catch (Exception ex) when (ex is not InvalidOperationException)
         {
             _logger.LogError(ex, "Error submitting workflow to ComfyUI");
-            throw new InvalidOperationException("Failed to submit workflow to ComfyUI", ex);
+            throw new InvalidOperationException($"Failed to submit workflow to ComfyUI at {url}", ex);
         }
     }
 
@@ -157,8 +157,8 @@ public class ComfyUIClient : IDisposable
                     {
                         _logger.LogDebug("Received WebSocket message: {Type}", message.Type);
 
-                        // Check for execution complete
-                        if (message.Type == "executed" || message.Type == "execution_cached")
+                        // Check for workflow execution complete
+                        if (message.Type == "execution_success")
                         {
                             if (message.Data.HasValue && 
                                 message.Data.Value.TryGetProperty("prompt_id", out var msgPromptId))
@@ -169,6 +169,12 @@ public class ComfyUIClient : IDisposable
                                     return true;
                                 }
                             }
+                        }
+
+                        // Log node-level events as debug (not workflow completion)
+                        if (message.Type == "executed" || message.Type == "execution_cached")
+                        {
+                            _logger.LogDebug("Node {Event} for prompt {PromptId}", message.Type, promptId);
                         }
 
                         // Check for errors
